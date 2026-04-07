@@ -1,0 +1,1288 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Kangu MLM — Análisis EF Ene–Mar 2026</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0f0f1a; color: #e8e8f0; font-size: 13px; }
+
+  /* HEADER */
+  .header {
+    background: #1a1a2e;
+    border-left: 8px solid #f5c518;
+    padding: 22px 32px;
+    display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid #2a2a45;
+  }
+  .header h1 { font-size: 22px; font-weight: 700; color: #fff; letter-spacing: 0.5px; }
+  .header .sub { font-size: 12px; color: #aaa; margin-top: 4px; }
+  .header .badge { background: #f5c518; color: #000; font-weight: 700; font-size: 11px; padding: 4px 10px; border-radius: 4px; }
+
+  /* TABS */
+  .tabs { display: flex; background: #12122a; border-bottom: 2px solid #f5c518; padding: 0 24px; }
+  .tab { padding: 12px 20px; cursor: pointer; color: #aaa; font-weight: 600; font-size: 12px; letter-spacing: 0.5px; transition: all 0.15s; border-bottom: 3px solid transparent; margin-bottom: -2px; }
+  .tab:hover { color: #fff; }
+  .tab.active { color: #f5c518; border-bottom-color: #f5c518; }
+
+  /* CONTENT */
+  .content { display: none; padding: 24px 28px; }
+  .content.active { display: block; }
+
+  /* SECTION */
+  .section { margin-bottom: 28px; }
+  .section-title { font-size: 13px; font-weight: 700; color: #f5c518; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 6px; border-bottom: 1px solid #2a2a45; }
+
+  /* GRID */
+  .kpi-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; margin-bottom: 20px; }
+  .kpi { background: #1a1a2e; border: 1px solid #2a2a45; border-radius: 6px; padding: 14px 16px; }
+  .kpi .label { font-size: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .kpi .value { font-size: 22px; font-weight: 700; color: #fff; }
+  .kpi .sub { font-size: 11px; color: #aaa; margin-top: 3px; }
+  .kpi.yellow .value { color: #f5c518; }
+  .kpi.red .value { color: #ff6b6b; }
+  .kpi.green .value { color: #4cbb8f; }
+  .kpi.orange .value { color: #f09a3e; }
+
+  /* TABLES */
+  table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  th { background: #12122a; color: #aaa; font-weight: 600; text-align: left; padding: 8px 10px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; border-bottom: 2px solid #2a2a45; position: sticky; top: 0; z-index: 1; }
+  td { padding: 7px 10px; border-bottom: 1px solid #1e1e35; vertical-align: middle; }
+  tr:hover td { background: #1c1c35; }
+  tr:nth-child(even) td { background: #161628; }
+  tr:nth-child(even):hover td { background: #1c1c35; }
+
+  .num { text-align: right; font-variant-numeric: tabular-nums; }
+  .badge-red { background: #c0392b22; color: #ff6b6b; border: 1px solid #c0392b55; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; }
+  .badge-orange { background: #e67e2222; color: #f09a3e; border: 1px solid #e67e2255; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; }
+  .badge-yellow { background: #f5c51822; color: #f5c518; border: 1px solid #f5c51855; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; }
+  .badge-green { background: #27ae6022; color: #4cbb8f; border: 1px solid #27ae6055; border-radius: 4px; padding: 2px 7px; font-size: 11px; font-weight: 700; }
+  .badge-gray { background: #2a2a4522; color: #888; border: 1px solid #2a2a4555; border-radius: 4px; padding: 2px 7px; font-size: 11px; }
+  .badge-blocked { background: #8e44ad22; color: #c39bd3; border: 1px solid #8e44ad55; border-radius: 4px; padding: 2px 7px; font-size: 11px; }
+
+  .highlight { color: #ff6b6b; font-weight: 700; }
+  .highlight-warn { color: #f09a3e; font-weight: 600; }
+  .highlight-ok { color: #4cbb8f; }
+
+  /* MONTH TABLE */
+  .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .month-card { background: #1a1a2e; border: 1px solid #2a2a45; border-radius: 8px; overflow: hidden; }
+  .month-card .mc-header { background: #f5c518; color: #000; font-weight: 700; font-size: 13px; padding: 8px 14px; }
+  .month-card .mc-body { padding: 12px 14px; }
+  .mc-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid #1e1e35; font-size: 12px; }
+  .mc-row:last-child { border-bottom: none; }
+  .mc-label { color: #aaa; }
+  .mc-val { font-weight: 600; color: #fff; }
+
+  /* SVC TABLE with bars */
+  .ratio-bar-bg { background: #1e1e35; border-radius: 3px; height: 6px; width: 100px; display: inline-block; vertical-align: middle; margin-left: 8px; }
+  .ratio-bar { background: #f5c518; border-radius: 3px; height: 6px; display: inline-block; }
+  .ratio-bar.red { background: #ff6b6b; }
+  .ratio-bar.orange { background: #f09a3e; }
+
+  .table-wrapper { max-height: 420px; overflow-y: auto; border: 1px solid #2a2a45; border-radius: 6px; }
+
+  /* INSIGHT BOX */
+  .insight { background: #1a1a2e; border-left: 4px solid #f5c518; border-radius: 0 6px 6px 0; padding: 12px 16px; margin-bottom: 14px; font-size: 12px; line-height: 1.6; }
+  .insight .ins-title { font-weight: 700; color: #f5c518; margin-bottom: 4px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .insight.red { border-left-color: #ff6b6b; }
+  .insight.red .ins-title { color: #ff6b6b; }
+  .insight.orange { border-left-color: #f09a3e; }
+  .insight.orange .ins-title { color: #f09a3e; }
+
+  .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; }
+
+  /* FOOTER */
+  footer { background: #1a1a2e; border-top: 2px solid #f5c518; padding: 12px 28px; display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #666; margin-top: 20px; }
+  footer strong { color: #aaa; }
+
+  /* SEARCH */
+  .search-bar { background: #12122a; border: 1px solid #2a2a45; color: #fff; padding: 8px 12px; border-radius: 4px; font-size: 12px; width: 260px; margin-bottom: 12px; }
+  .search-bar::placeholder { color: #666; }
+  .search-bar:focus { outline: none; border-color: #f5c518; }
+
+  @media print {
+    body { background: #fff !important; color: #111 !important; }
+    .tabs, footer, button { display: none !important; }
+    .content { display: block !important; }
+    .header { background: #fff !important; border-left: 8px solid #f5c518 !important; }
+    .header h1, .header .sub { color: #111 !important; }
+    .kpi, .insight, .month-card, .section { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <div class="header h1" style="font-size:22px;font-weight:700;color:#fff;">Kangu MLM — Análisis Entrega Fantasma</div>
+    <div class="sub">Enero – Marzo 2026 &nbsp;|&nbsp; 3 meses &nbsp;|&nbsp; Mercado Envíos Off</div>
+  </div>
+  <div class="badge">MLM · KANGU</div>
+</div>
+
+<div class="tabs">
+  <div class="tab active" onclick="showTab('summary')">Summary</div>
+  <div class="tab" onclick="showTab('concentracion')">Concentración</div>
+  <div class="tab" onclick="showTab('drivers')">Drivers</div>
+  <div class="tab" onclick="showTab('graficos')">Gráficos</div>
+</div>
+
+<!-- TAB: SUMMARY (unified) -->
+<div id="tab-summary" class="content active">
+
+  <!-- HEADER CALLOUT -->
+  <div style="background:#1a1a2e;border-left:6px solid #ff6b6b;border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:18px;display:flex;justify-content:space-between;align-items:center;">
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#ff6b6b;margin-bottom:4px;">Ajuste DS por Entregas Fantasma — Cards MLM · Kangu · Plan "Kill Bill"</div>
+      <div style="font-size:11px;color:#aaa;">Análisis Ene–Mar 2026 · Reunión de seguimiento · Estado de comunicaciones y accionables</div>
+    </div>
+    <button onclick="window.print()" style="background:#f5c518;color:#000;border:none;border-radius:4px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;letter-spacing:0.3px;white-space:nowrap;">⬇ Exportar PDF</button>
+  </div>
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid" style="grid-template-columns:repeat(4,1fr);margin-bottom:16px;">
+    <div class="kpi red">
+      <div class="label">Participación Kangu en EF MLM</div>
+      <div class="value">24%</div>
+      <div class="sub">del problema total de EF en MLM</div>
+    </div>
+    <div class="kpi red">
+      <div class="label">Ratio EF Kangu (Marzo)</div>
+      <div class="value">2.40%</div>
+      <div class="sub">vs 1.22% otros MLPs — gap 2×</div>
+    </div>
+    <div class="kpi orange">
+      <div class="label">PNRC total Ene–Mar</div>
+      <div class="value">11,112</div>
+      <div class="sub">en 1,497 places activos</div>
+    </div>
+    <div class="kpi yellow">
+      <div class="label">Drivers crónicos (3 meses)</div>
+      <div class="value">1,344</div>
+      <div class="sub">86% de los drivers del trimestre</div>
+    </div>
+  </div>
+
+  <!-- P10 / P20 TABLE -->
+  <div class="section">
+    <div class="section-title">Concentración de Places — Pareto</div>
+    <div style="display:grid;grid-template-columns:auto 1fr 1fr;gap:0;border:1px solid #2a2a45;border-radius:8px;overflow:hidden;margin-bottom:14px;max-width:540px;">
+      <!-- header row -->
+      <div style="background:#12122a;padding:10px 16px;font-size:10px;font-weight:700;color:#666;text-transform:uppercase;letter-spacing:0.5px;border-right:1px solid #2a2a45;border-bottom:1px solid #2a2a45;"></div>
+      <div style="background:#12122a;padding:10px 16px;font-size:11px;font-weight:700;color:#f09a3e;text-align:center;border-right:1px solid #2a2a45;border-bottom:1px solid #2a2a45;">P10 <span style="font-weight:400;color:#888;font-size:10px;">(top 10% de places)</span></div>
+      <div style="background:#12122a;padding:10px 16px;font-size:11px;font-weight:700;color:#ff6b6b;text-align:center;border-bottom:1px solid #2a2a45;">P20 <span style="font-weight:400;color:#888;font-size:10px;">(top 20% de places)</span></div>
+      <!-- places # -->
+      <div style="background:#161628;padding:9px 16px;font-size:11px;color:#aaa;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">places #</div>
+      <div style="background:#161628;padding:9px 16px;font-size:14px;font-weight:700;color:#f09a3e;text-align:center;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">150</div>
+      <div style="background:#161628;padding:9px 16px;font-size:14px;font-weight:700;color:#ff6b6b;text-align:center;border-bottom:1px solid #1e1e35;">302</div>
+      <!-- places % -->
+      <div style="background:#1a1a2e;padding:9px 16px;font-size:11px;color:#aaa;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">places %</div>
+      <div style="background:#1a1a2e;padding:9px 16px;font-size:14px;font-weight:700;color:#f09a3e;text-align:center;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">10.0%</div>
+      <div style="background:#1a1a2e;padding:9px 16px;font-size:14px;font-weight:700;color:#ff6b6b;text-align:center;border-bottom:1px solid #1e1e35;">20.17%</div>
+      <!-- SHPs -->
+      <div style="background:#161628;padding:9px 16px;font-size:11px;color:#aaa;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">SHPs (PNRC)</div>
+      <div style="background:#161628;padding:9px 16px;font-size:14px;font-weight:700;color:#f09a3e;text-align:center;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">7,173</div>
+      <div style="background:#161628;padding:9px 16px;font-size:14px;font-weight:700;color:#ff6b6b;text-align:center;border-bottom:1px solid #1e1e35;">8,891</div>
+      <!-- EF del total -->
+      <div style="background:#161628;padding:9px 16px;font-size:11px;color:#aaa;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">EF % del total</div>
+      <div style="background:#161628;padding:9px 16px;font-size:14px;font-weight:700;color:#f09a3e;text-align:center;border-right:1px solid #2a2a45;border-bottom:1px solid #1e1e35;">64.6%</div>
+      <div style="background:#161628;padding:9px 16px;font-size:14px;font-weight:700;color:#ff6b6b;text-align:center;border-bottom:1px solid #1e1e35;">80.0%</div>
+      <!-- Ratio EF promedio -->
+      <div style="background:#1a1a2e;padding:9px 16px;font-size:11px;color:#aaa;border-right:1px solid #2a2a45;">Ratio EF prom.</div>
+      <div style="background:#1a1a2e;padding:9px 16px;font-size:14px;font-weight:700;color:#f09a3e;text-align:center;border-right:1px solid #2a2a45;">3.37%</div>
+      <div style="background:#1a1a2e;padding:9px 16px;font-size:14px;font-weight:700;color:#ff6b6b;text-align:center;">3.22%</div>
+    </div>
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px;">
+      <div style="font-size:11px;color:#666;">Ratio EF prom. = promedio ponderado por PNRC del ratio del SVC. Total places: 1,497.</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="exportParetoCSV(150,'kangu_mlm_P10_places.csv')" style="background:#2a2a45;color:#f09a3e;border:1px solid #f09a3e;border-radius:4px;padding:4px 11px;font-size:10px;font-weight:700;cursor:pointer;">↓ P10 CSV (150 places)</button>
+        <button onclick="exportParetoCSV(302,'kangu_mlm_P20_places.csv')" style="background:#2a2a45;color:#ff6b6b;border:1px solid #ff6b6b;border-radius:4px;padding:4px 11px;font-size:10px;font-weight:700;cursor:pointer;">↓ P20 CSV (302 places)</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- HIGHLIGHTS: SVC · DRIVERS · PLACES -->
+  <div class="section">
+    <div class="section-title">Resumen de alertas por dimensión</div>
+    <div class="three-col">
+
+      <!-- SVC -->
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;overflow:hidden;">
+        <div style="background:#ff6b6b22;padding:8px 14px;font-size:10px;font-weight:700;color:#ff6b6b;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #2a2a45;">Concentración por SVC</div>
+        <div style="padding:10px 14px;">
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">2 SVCs concentran el problema de ratio. SMX2 lidera en volumen.</div>
+          <table style="width:100%;font-size:11px;border-collapse:collapse;">
+            <tr><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:left;">SVC</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">PNRC</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">Ratio</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">Dr.</th></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px"><span style="color:#ff6b6b;font-weight:700;">STJ1 ⚡</span></td><td style="text-align:right;padding:4px">367</td><td style="text-align:right;padding:4px;color:#ff6b6b;font-weight:700;">8.2%</td><td style="text-align:right;padding:4px;color:#ff6b6b;">11</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px"><span style="color:#ff6b6b;font-weight:700;">SMX5</span></td><td style="text-align:right;padding:4px">926</td><td style="text-align:right;padding:4px;color:#ff6b6b;font-weight:700;">5.4%</td><td style="text-align:right;padding:4px">154</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px"><span style="color:#f09a3e;font-weight:700;">SJA1</span></td><td style="text-align:right;padding:4px">379</td><td style="text-align:right;padding:4px;color:#f09a3e;font-weight:700;">4.2%</td><td style="text-align:right;padding:4px">69</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px">STL1</td><td style="text-align:right;padding:4px">733</td><td style="text-align:right;padding:4px;color:#f09a3e;">3.6%</td><td style="text-align:right;padding:4px">143</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px">SMX2 <span style="color:#888;font-size:9px;">(vol.)</span></td><td style="text-align:right;padding:4px;color:#f5c518;font-weight:700;">1,292</td><td style="text-align:right;padding:4px">3.6%</td><td style="text-align:right;padding:4px">185</td></tr>
+          </table>
+          <div style="font-size:10px;color:#666;margin-top:8px;">STJ1 en Marzo: 13.9% ratio con solo 3 drivers. Outlier crítico.</div>
+        </div>
+      </div>
+
+      <!-- DRIVERS -->
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;overflow:hidden;">
+        <div style="background:#f09a3e22;padding:8px 14px;font-size:10px;font-weight:700;color:#f09a3e;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #2a2a45;">Drivers con ratio crítico (&gt;40%)</div>
+        <div style="padding:10px 14px;">
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">8 drivers activos con ratio >40%. Solo 2 bloqueados.</div>
+          <table style="width:100%;font-size:11px;border-collapse:collapse;">
+            <tr><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:left;">Driver</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:left;">SVC</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">Ratio</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">PNRC</th></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#ff6b6b;font-weight:700;">#3671678</td><td style="padding:4px">STL1</td><td style="text-align:right;padding:4px;color:#ff6b6b;font-weight:700;">63.8%</td><td style="text-align:right;padding:4px">245</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#ff6b6b;font-weight:700;">#3099974</td><td style="padding:4px">SMX5</td><td style="text-align:right;padding:4px;color:#ff6b6b;font-weight:700;">56.8%</td><td style="text-align:right;padding:4px">117</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#ff6b6b;">#2250149</td><td style="padding:4px">SMX5</td><td style="text-align:right;padding:4px;color:#ff6b6b;">50.6%</td><td style="text-align:right;padding:4px">131 <span style="color:#c39bd3;font-size:9px;">blk</span></td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">#3765915</td><td style="padding:4px">SMX2</td><td style="text-align:right;padding:4px;color:#f09a3e;">40.5%</td><td style="text-align:right;padding:4px">207</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">#1370127</td><td style="padding:4px">SMX2</td><td style="text-align:right;padding:4px;color:#f09a3e;">41.3%</td><td style="text-align:right;padding:4px">157</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">#825149</td><td style="padding:4px">SVR1</td><td style="text-align:right;padding:4px;color:#f09a3e;">47.1%</td><td style="text-align:right;padding:4px">60</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">#3290441</td><td style="padding:4px">SMX5</td><td style="text-align:right;padding:4px;color:#f09a3e;">38.4%</td><td style="text-align:right;padding:4px">164 <span style="color:#c39bd3;font-size:9px;">blk</span></td></tr>
+          </table>
+          <div style="font-size:10px;color:#666;margin-top:8px;">+#3857459 (SSL1 100%, 20 PNRC) — detectado, bajo volumen.</div>
+        </div>
+      </div>
+
+      <!-- PLACES -->
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;overflow:hidden;">
+        <div style="background:#f5c51822;padding:8px 14px;font-size:10px;font-weight:700;color:#f5c518;text-transform:uppercase;letter-spacing:0.5px;border-bottom:1px solid #2a2a45;">Places con ratio crítico</div>
+        <div style="padding:10px 14px;">
+          <div style="font-size:11px;color:#888;margin-bottom:8px;">Places con un solo driver y ratio >25%. Concentración extrema.</div>
+          <table style="width:100%;font-size:11px;border-collapse:collapse;">
+            <tr><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:left;">Place (sufijo)</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:left;">SVC</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">Ratio max</th><th style="color:#666;font-size:9px;text-transform:uppercase;padding:3px 4px;text-align:right;">PNRC</th></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#ff6b6b;font-weight:700;">..._260871715</td><td style="padding:4px">STL1</td><td style="text-align:right;padding:4px;color:#ff6b6b;font-weight:700;">63.8%</td><td style="text-align:right;padding:4px">245</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#ff6b6b;font-weight:700;">..._228491074</td><td style="padding:4px">STJ1</td><td style="text-align:right;padding:4px;color:#ff6b6b;font-weight:700;">35.0%</td><td style="text-align:right;padding:4px">356</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">..._131692127</td><td style="padding:4px">SJA1</td><td style="text-align:right;padding:4px;color:#f09a3e;">30.5%</td><td style="text-align:right;padding:4px">137</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">..._177183056</td><td style="padding:4px">STL1</td><td style="text-align:right;padding:4px;color:#f09a3e;">26.6%</td><td style="text-align:right;padding:4px">199</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">..._2786225</td><td style="padding:4px">SMX3</td><td style="text-align:right;padding:4px;color:#f09a3e;">24.1%</td><td style="text-align:right;padding:4px">139</td></tr>
+            <tr style="border-top:1px solid #1e1e35"><td style="padding:4px;color:#f09a3e;">..._116589920</td><td style="padding:4px">SMX2</td><td style="text-align:right;padding:4px;color:#f09a3e;">41.3%</td><td style="text-align:right;padding:4px">157</td></tr>
+          </table>
+          <div style="font-size:10px;color:#666;margin-top:8px;">Todos los places críticos operan con 1 driver. Ver detalle en tab Concentración.</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- STRATEGY + MONTHLY 2-col -->
+  <div class="two-col" style="margin-bottom:20px;">
+    <div>
+      <div class="section-title">Evolución mensual</div>
+      <div class="month-grid" style="grid-template-columns:1fr;gap:10px;">
+        <div class="month-card">
+          <div class="mc-header">Enero 2026</div>
+          <div class="mc-body">
+            <div class="mc-row"><span class="mc-label">Drivers activos</span><span class="mc-val">1,560</span></div>
+            <div class="mc-row"><span class="mc-label">PNRC total</span><span class="mc-val" style="color:#f5c518">3,415</span></div>
+            <div class="mc-row"><span class="mc-label">Ratio promedio</span><span class="mc-val">2.17%</span></div>
+            <div class="mc-row"><span class="mc-label">Bloqueados</span><span class="mc-val" style="color:#ff6b6b">40</span></div>
+          </div>
+        </div>
+        <div class="month-card">
+          <div class="mc-header">Febrero 2026</div>
+          <div class="mc-body">
+            <div class="mc-row"><span class="mc-label">Drivers activos</span><span class="mc-val">1,534</span></div>
+            <div class="mc-row"><span class="mc-label">PNRC total</span><span class="mc-val" style="color:#f09a3e">3,311</span></div>
+            <div class="mc-row"><span class="mc-label">Ratio promedio</span><span class="mc-val">1.99%</span></div>
+            <div class="mc-row"><span class="mc-label">Bloqueados</span><span class="mc-val" style="color:#f09a3e">29</span></div>
+          </div>
+        </div>
+        <div class="month-card">
+          <div class="mc-header" style="background:#ff6b6b;">Marzo 2026 ▲</div>
+          <div class="mc-body">
+            <div class="mc-row"><span class="mc-label">Drivers activos</span><span class="mc-val">1,604</span></div>
+            <div class="mc-row"><span class="mc-label">PNRC total</span><span class="mc-val" style="color:#ff6b6b">4,386</span></div>
+            <div class="mc-row"><span class="mc-label">Ratio promedio</span><span class="mc-val">2.46%</span></div>
+            <div class="mc-row"><span class="mc-label">Bloqueados</span><span class="mc-val" style="color:#4cbb8f">14 ▼</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Plan "Kill Bill" — Estado</div>
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;padding:14px;margin-bottom:12px;">
+        <div style="font-size:11px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;">Timeline de comunicaciones</div>
+        <div style="position:relative;padding-left:20px;">
+          <div style="position:absolute;left:7px;top:0;bottom:0;width:2px;background:#2a2a45;"></div>
+          <div style="margin-bottom:14px;position:relative;">
+            <div style="position:absolute;left:-16px;top:3px;width:10px;height:10px;background:#4cbb8f;border-radius:50%;"></div>
+            <div style="font-size:12px;font-weight:700;color:#4cbb8f;">2 Mar 2026 — Completado</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">Fase 1: 241 agencias con +10 PNRc notificadas · Apertura: <strong style="color:#f5c518">67%</strong></div>
+          </div>
+          <div style="margin-bottom:14px;position:relative;">
+            <div style="position:absolute;left:-16px;top:3px;width:10px;height:10px;background:#f09a3e;border-radius:50%;"></div>
+            <div style="font-size:12px;font-weight:700;color:#f09a3e;">Próximamente — Fase 2</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">20 agencias persistentes post-warning (+10 PNR)</div>
+          </div>
+          <div style="margin-bottom:14px;position:relative;">
+            <div style="position:absolute;left:-16px;top:3px;width:10px;height:10px;background:#ff6b6b;border-radius:50%;"></div>
+            <div style="font-size:12px;font-weight:700;color:#ff6b6b;">En evaluación — Bloqueos (S. Fucci)</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">Acción inmediata para casos con ≥38% PNRC y +1km distancia</div>
+          </div>
+          <div style="position:relative;">
+            <div style="position:absolute;left:-16px;top:3px;width:10px;height:10px;background:#4cbb8f;border-radius:50%;"></div>
+            <div style="font-size:12px;font-weight:700;color:#4cbb8f;">Próximo lanzamiento</div>
+            <div style="font-size:11px;color:#aaa;margin-top:2px;">Loyalty contemplará Cards en broadcast de rutas</div>
+          </div>
+        </div>
+      </div>
+      <div class="insight red">
+        <div class="ins-title">Alerta Marzo — PNRC +32% con menos bloqueos</div>
+        PNRC escaló de 3,311 (Feb) a <strong>4,386 (Mar)</strong> mientras los bloqueados cayeron de 29 a <strong>14</strong>. STJ1: 254 PNRC en 3 drivers, driver #2733570 con ratio 35% — bloqueo perm. de sept 2025 activo pero sin efecto.
+      </div>
+    </div>
+  </div>
+
+  <!-- HALLAZGOS + ACCIONABLES -->
+  <div class="two-col">
+    <div>
+      <div class="section-title">Hallazgos de Auditorías</div>
+      <div class="insight orange">
+        <div class="ins-title">Calidad de datos en origen (H. Bueno)</div>
+        Tarjetas (esp. débito) con <strong>direcciones/teléfonos erróneos desde el alta</strong>. El problema puede ser previo a la última milla. Débito = 36.3% de los PNRs.
+      </div>
+      <div class="insight red">
+        <div class="ins-title">Tarjetas no solicitadas · Malas prácticas</div>
+        Clientes sin tarjeta solicitada. Walkers dejan en buzones o con vecinos sin ID — bloquea el flujo TOC de corrección de dirección.
+      </div>
+    </div>
+    <div>
+      <div class="section-title">Accionables pendientes</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:700;color:#ff6b6b;text-transform:uppercase;margin-bottom:4px;">Bloqueo inmediato</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.5;">Agencias con ≥38% PNRC y entregas >1km. PNR bandeja activa.</div>
+        </div>
+        <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:700;color:#f09a3e;text-transform:uppercase;margin-bottom:4px;">Ajuste del Bono</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.5;">Excluir Cards del bono (hoy 10.1% vol., 96.93% efectividad).</div>
+        </div>
+        <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:700;color:#f5c518;text-transform:uppercase;margin-bottom:4px;">Auditoría Origen</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.5;">Calidad de datos desde alta de tarjeta (H. Bueno).</div>
+        </div>
+        <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:10px;">
+          <div style="font-size:10px;font-weight:700;color:#4cbb8f;text-transform:uppercase;margin-bottom:4px;">Nuevo KPI Geo</div>
+          <div style="font-size:11px;color:#aaa;line-height:1.5;">Abrir KPI por verified vs. not verified geo.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OLD MONTHLY SECTION (hidden - data now in compact cards above) -->
+  <div class="section" style="display:none;">
+    <div class="section-title">Resumen mensual</div>
+    <div class="month-grid">
+      <div class="month-card">
+        <div class="mc-header">Enero 2026</div>
+        <div class="mc-body">
+          <div class="mc-row"><span class="mc-label">Drivers activos</span><span class="mc-val">1,560</span></div>
+          <div class="mc-row"><span class="mc-label">PNRC total</span><span class="mc-val" style="color:#f5c518">3,415</span></div>
+          <div class="mc-row"><span class="mc-label">Monto estimado</span><span class="mc-val">$34,150</span></div>
+          <div class="mc-row"><span class="mc-label">Ratio promedio</span><span class="mc-val">2.17%</span></div>
+          <div class="mc-row"><span class="mc-label">Bloqueados</span><span class="mc-val" style="color:#ff6b6b">40</span></div>
+          <div class="mc-row"><span class="mc-label">Con bloqueo permanente</span><span class="mc-val">90</span></div>
+          <div class="mc-row"><span class="mc-label">Con advertencia/educación</span><span class="mc-val">1,123</span></div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="mc-header">Febrero 2026</div>
+        <div class="mc-body">
+          <div class="mc-row"><span class="mc-label">Drivers activos</span><span class="mc-val">1,534</span></div>
+          <div class="mc-row"><span class="mc-label">PNRC total</span><span class="mc-val" style="color:#f09a3e">3,311</span></div>
+          <div class="mc-row"><span class="mc-label">Monto estimado</span><span class="mc-val">$33,110</span></div>
+          <div class="mc-row"><span class="mc-label">Ratio promedio</span><span class="mc-val">1.99%</span></div>
+          <div class="mc-row"><span class="mc-label">Bloqueados</span><span class="mc-val" style="color:#f09a3e">29</span></div>
+          <div class="mc-row"><span class="mc-label">Con bloqueo permanente</span><span class="mc-val">81</span></div>
+          <div class="mc-row"><span class="mc-label">Con advertencia/educación</span><span class="mc-val">1,107</span></div>
+        </div>
+      </div>
+      <div class="month-card">
+        <div class="mc-header" style="background:#ff6b6b">Marzo 2026 ▲</div>
+        <div class="mc-body">
+          <div class="mc-row"><span class="mc-label">Drivers activos</span><span class="mc-val">1,604</span></div>
+          <div class="mc-row"><span class="mc-label">PNRC total</span><span class="mc-val" style="color:#ff6b6b">4,386</span></div>
+          <div class="mc-row"><span class="mc-label">Monto estimado</span><span class="mc-val">$43,860</span></div>
+          <div class="mc-row"><span class="mc-label">Ratio promedio</span><span class="mc-val">2.46%</span></div>
+          <div class="mc-row"><span class="mc-label">Bloqueados</span><span class="mc-val" style="color:#4cbb8f">14 ▼</span></div>
+          <div class="mc-row"><span class="mc-label">Con bloqueo permanente</span><span class="mc-val">66</span></div>
+          <div class="mc-row"><span class="mc-label">Con advertencia/educación</span><span class="mc-val">1,121</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Alertas clave</div>
+    <div class="insight red">
+      <div class="ins-title">🔴 PNRC sube +32% en Marzo pese a menos bloqueos</div>
+      El PNRC nominal escaló de 3,311 (Feb) a <strong>4,386 (Mar)</strong> — máximo del trimestre — mientras los drivers bloqueados cayeron de 29 a apenas <strong>14</strong>. La relajación en bloqueos coincide con el rebound de EF documentado en el período Mar 9–16.
+    </div>
+    <div class="insight red">
+      <div class="ins-title">🔴 STJ1 en Marzo: 254 PNRC en 3 drivers (driver #2733570 = 248)</div>
+      La facility STJ1 concentra el mayor pico del mes. Un solo driver (<strong>#2733570</strong>) generó 248 PNRC con ratio 35% — y su ratio escala mes a mes (19% → 23% → 35%). Tiene bloqueo permanente de sept 2025 registrado pero sigue operando.
+    </div>
+    <div class="insight orange">
+      <div class="ins-title">⚠️ 1,344 chronic offenders presentes los 3 meses</div>
+      El <strong>86% de los drivers</strong> del trimestre aparecen en los tres meses. Esto implica que la rotación es muy baja y los mismos drivers con EF recurrente continúan operando. Solo 40/29/14 fueron bloqueados respectivamente.
+    </div>
+    <div class="insight orange">
+      <div class="ins-title">⚠️ STL1 altamente concentrado en driver #3671678 (ratio máx 63.8%)</div>
+      El driver #3671678 opera exclusivamente en STL1, generó 245 PNRC acumulados con ratio máximo del <strong>63.8%</strong> — el más alto con volumen significativo del trimestre. Sin bloqueo permanente registrado. Distancia promedio de "entrega": 136 m — consistente con EF desde el depósito.
+    </div>
+    <div class="insight">
+      <div class="ins-title">📌 27 drivers con ratio estrictamente creciente (Ene &lt; Feb &lt; Mar)</div>
+      Hay 27 drivers con empeoramiento sostenido de ratio EF. Los más críticos: #2733570 (STJ1), #3083654 (SMX5), #789179 (SMX9). Señal de comportamiento sistemático que no está siendo interceptado por las acciones de educación actuales.
+    </div>
+  </div>
+
+  <div class="section" style="display:none;">
+    <div class="section-title">Concentración de PNRC — Top 3 SVC por mes</div>
+    <div class="three-col">
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:8px;">ENERO</div>
+        <table>
+          <tr><th>SVC</th><th class="num">Drivers</th><th class="num">PNRC</th><th class="num">Ratio</th></tr>
+          <tr><td>SMX2</td><td class="num">58</td><td class="num">413</td><td class="num highlight-warn">3.6%</td></tr>
+          <tr><td>SMX5</td><td class="num">51</td><td class="num">289</td><td class="num highlight-warn">4.7%</td></tr>
+          <tr><td>STL1</td><td class="num">49</td><td class="num">268</td><td class="num highlight-warn">4.7%</td></tr>
+          <tr><td>SMX9</td><td class="num">69</td><td class="num">202</td><td class="num">2.6%</td></tr>
+          <tr><td>SMX4</td><td class="num">62</td><td class="num">188</td><td class="num">1.8%</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:8px;">FEBRERO</div>
+        <table>
+          <tr><th>SVC</th><th class="num">Drivers</th><th class="num">PNRC</th><th class="num">Ratio</th></tr>
+          <tr><td>SMX5</td><td class="num">52</td><td class="num">408</td><td class="num highlight">5.4%</td></tr>
+          <tr><td>SMX2</td><td class="num">63</td><td class="num">331</td><td class="num highlight-warn">3.3%</td></tr>
+          <tr><td>STL1</td><td class="num">48</td><td class="num">240</td><td class="num highlight-warn">3.2%</td></tr>
+          <tr><td>SMX9</td><td class="num">62</td><td class="num">165</td><td class="num">1.8%</td></tr>
+          <tr><td>SMX3</td><td class="num">21</td><td class="num">138</td><td class="num highlight-warn">3.6%</td></tr>
+        </table>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:8px;">MARZO</div>
+        <table>
+          <tr><th>SVC</th><th class="num">Drivers</th><th class="num">PNRC</th><th class="num">Ratio</th></tr>
+          <tr><td>SMX2</td><td class="num">79</td><td class="num">548</td><td class="num highlight-warn">3.9%</td></tr>
+          <tr><td><span class="highlight">STJ1</span></td><td class="num">3</td><td class="num highlight">254</td><td class="num highlight">13.9%</td></tr>
+          <tr><td>SMX5</td><td class="num">52</td><td class="num">229</td><td class="num highlight">6.1%</td></tr>
+          <tr><td>STL1</td><td class="num">47</td><td class="num">225</td><td class="num highlight-warn">3.0%</td></tr>
+          <tr><td>SMX11</td><td class="num">53</td><td class="num">222</td><td class="num">2.4%</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+  </div><!-- end hidden section -->
+</div>
+<!-- END TAB: SUMMARY -->
+
+<!-- TAB: CONCENTRACIÓN (SVC + Place) -->
+<div id="tab-concentracion" class="content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div></div>
+    <button onclick="exportSVCcsv()" style="background:#2a2a45;color:#f5c518;border:1px solid #f5c518;border-radius:4px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;">↓ Exportar SVC CSV</button>
+  </div>
+  <div id="concentracion-svc">
+  <div class="section">
+    <div class="section-title">Por SVC — Detalle los 3 meses</div>
+    <div class="insight">
+      <div class="ins-title">Cómo leer esta tabla</div>
+      Ratio promedio = promedio de ratios individuales de los drivers en ese SVC. Un ratio alto con pocos drivers indica concentración extrema (alertante). SMX2 lidera en volumen absoluto pero STJ1 en Marzo es el outlier de ratio más grave.
+    </div>
+
+    <div class="section-title" style="margin-top:16px">ENERO</div>
+    <div class="table-wrapper">
+    <table id="svc-table-ene">
+      <tr><th>SVC</th><th class="num">Drivers</th><th class="num">PNRC</th><th class="num">Ratio Prom</th><th></th></tr>
+      <tr><td>SMX2</td><td class="num">58</td><td class="num">413</td><td class="num">3.64%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:36px"></span></span></td></tr>
+      <tr><td>SMX5</td><td class="num">51</td><td class="num">289</td><td class="num highlight-warn">4.68%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:47px"></span></span></td></tr>
+      <tr><td>STL1</td><td class="num">49</td><td class="num">268</td><td class="num highlight-warn">4.65%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:47px"></span></span></td></tr>
+      <tr><td>SMX9</td><td class="num">69</td><td class="num">202</td><td class="num">2.60%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:26px"></span></span></td></tr>
+      <tr><td>SMX4</td><td class="num">62</td><td class="num">188</td><td class="num">1.84%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:18px"></span></span></td></tr>
+      <tr><td>SMX8</td><td class="num">46</td><td class="num">139</td><td class="num">2.22%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:22px"></span></span></td></tr>
+      <tr><td>SMX11</td><td class="num">51</td><td class="num">135</td><td class="num">2.55%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:26px"></span></span></td></tr>
+      <tr><td>SMX3</td><td class="num">17</td><td class="num">116</td><td class="num highlight-warn">3.24%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:32px"></span></span></td></tr>
+      <tr><td>STJ1</td><td class="num">30</td><td class="num">92</td><td class="num">1.86%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:19px"></span></span></td></tr>
+      <tr><td>SJA1</td><td class="num">34</td><td class="num">77</td><td class="num">2.05%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:21px"></span></span></td></tr>
+    </table>
+    </div>
+
+    <div class="section-title" style="margin-top:20px">FEBRERO</div>
+    <div class="table-wrapper">
+    <table>
+      <tr><th>SVC</th><th class="num">Drivers</th><th class="num">PNRC</th><th class="num">Ratio Prom</th><th></th></tr>
+      <tr><td><span class="highlight">SMX5</span></td><td class="num">52</td><td class="num highlight">408</td><td class="num highlight">5.39%</td><td><span class="ratio-bar-bg"><span class="ratio-bar red" style="width:54px"></span></span></td></tr>
+      <tr><td>SMX2</td><td class="num">63</td><td class="num">331</td><td class="num highlight-warn">3.26%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:33px"></span></span></td></tr>
+      <tr><td>STL1</td><td class="num">48</td><td class="num">240</td><td class="num highlight-warn">3.18%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:32px"></span></span></td></tr>
+      <tr><td>SMX9</td><td class="num">62</td><td class="num">165</td><td class="num">1.78%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:18px"></span></span></td></tr>
+      <tr><td>SMX3</td><td class="num">21</td><td class="num">138</td><td class="num highlight-warn">3.60%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:36px"></span></span></td></tr>
+      <tr><td>SMX8</td><td class="num">48</td><td class="num">138</td><td class="num">2.37%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:24px"></span></span></td></tr>
+      <tr><td>SMX4</td><td class="num">63</td><td class="num">137</td><td class="num">1.57%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:16px"></span></span></td></tr>
+      <tr><td>SMX11</td><td class="num">54</td><td class="num">114</td><td class="num">2.32%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:23px"></span></span></td></tr>
+      <tr><td>STJ1</td><td class="num">25</td><td class="num">82</td><td class="num">2.18%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:22px"></span></span></td></tr>
+    </table>
+    </div>
+
+    <div class="section-title" style="margin-top:20px">MARZO</div>
+    <div class="table-wrapper">
+    <table>
+      <tr><th>SVC</th><th class="num">Drivers</th><th class="num">PNRC</th><th class="num">Ratio Prom</th><th></th></tr>
+      <tr><td>SMX2</td><td class="num">79</td><td class="num">548</td><td class="num highlight-warn">3.93%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:39px"></span></span></td></tr>
+      <tr><td><span class="highlight">STJ1 ⚡</span></td><td class="num" style="color:#ff6b6b"><strong>3</strong></td><td class="num highlight">254</td><td class="num highlight">13.93%</td><td><span class="ratio-bar-bg"><span class="ratio-bar red" style="width:100px"></span></span></td></tr>
+      <tr><td><span class="highlight-warn">SMX5</span></td><td class="num">52</td><td class="num">229</td><td class="num highlight">6.14%</td><td><span class="ratio-bar-bg"><span class="ratio-bar red" style="width:61px"></span></span></td></tr>
+      <tr><td>STL1</td><td class="num">47</td><td class="num">225</td><td class="num highlight-warn">2.99%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:30px"></span></span></td></tr>
+      <tr><td>SMX11</td><td class="num">53</td><td class="num">222</td><td class="num">2.37%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:24px"></span></span></td></tr>
+      <tr><td>SMX9</td><td class="num">64</td><td class="num">207</td><td class="num">2.12%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:21px"></span></span></td></tr>
+      <tr><td><span class="highlight-warn">SJA1</span></td><td class="num">35</td><td class="num">200</td><td class="num highlight-warn">5.30%</td><td><span class="ratio-bar-bg"><span class="ratio-bar red" style="width:53px"></span></span></td></tr>
+      <tr><td>SMX8</td><td class="num">48</td><td class="num">180</td><td class="num">1.96%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:20px"></span></span></td></tr>
+      <tr><td>SMX4</td><td class="num">60</td><td class="num">168</td><td class="num">1.59%</td><td><span class="ratio-bar-bg"><span class="ratio-bar" style="width:16px"></span></span></td></tr>
+      <tr><td>SMX3</td><td class="num">18</td><td class="num">117</td><td class="num highlight-warn">4.43%</td><td><span class="ratio-bar-bg"><span class="ratio-bar orange" style="width:44px"></span></span></td></tr>
+    </table>
+    </div>
+  </div>
+  </div><!-- end concentracion-svc -->
+
+  <div id="concentracion-place" style="margin-top:28px;">
+  <div class="section">
+    <div class="section-title" style="border-top:1px solid #2a2a45;padding-top:16px;">Por Place — Top mensual y crónicos</div>
+    <div class="insight red">
+      <div class="ins-title">🔴 Place 17243954_228491074 (STJ1) — caso extremo en Marzo</div>
+      Un solo driver (#2733570) opera este place y generó 248 PNRC en Marzo con ratio 35%. El mismo place tuvo 51 PNRC en Ene y 57 en Feb. Total trimestre: <strong>356 PNRC</strong> desde un único driver que escala mes a mes. Tiene bloqueo permanente registrado de sept 2025 pero opera sin restricción.
+    </div>
+    <div class="insight orange">
+      <div class="ins-title">⚠️ Place 17243954_260871715 (STL1) — ratio hasta 63.8%</div>
+      Driver #3671678, presente los 3 meses, 245 PNRC acumulados. Ratio máximo del <strong>63.8%</strong> en el trimestre. Sin bloqueo permanente. Distancia promedio de "entrega" 136 m — consistente con EF sistemática.
+    </div>
+
+    <div class="three-col">
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:8px;">TOP PLACES — ENERO</div>
+        <div class="table-wrapper">
+        <table>
+          <tr><th>Place ID</th><th>SVC</th><th class="num">Dr.</th><th class="num">PNRC</th><th class="num">Ratio</th></tr>
+          <tr><td style="font-size:10px">..._261559582</td><td>SMX2</td><td class="num">23</td><td class="num">111</td><td class="num">4.1%</td></tr>
+          <tr><td style="font-size:10px">..._209748370</td><td>SMX5</td><td class="num highlight">1</td><td class="num highlight">78</td><td class="num highlight">50.6%</td></tr>
+          <tr><td style="font-size:10px">..._260871715</td><td>STL1</td><td class="num highlight">1</td><td class="num highlight">74</td><td class="num highlight">63.8%</td></tr>
+          <tr><td style="font-size:10px">..._164835146</td><td>SMX2</td><td class="num highlight">1</td><td class="num">73</td><td class="num highlight-warn">18.0%</td></tr>
+          <tr><td style="font-size:10px">..._177183056</td><td>STL1</td><td class="num highlight">1</td><td class="num">66</td><td class="num highlight-warn">23.0%</td></tr>
+          <tr><td style="font-size:10px">..._2786225</td><td>SMX3</td><td class="num highlight">1</td><td class="num">61</td><td class="num highlight-warn">23.3%</td></tr>
+          <tr><td style="font-size:10px">..._116589920</td><td>SMX2</td><td class="num highlight">1</td><td class="num">59</td><td class="num highlight-warn">41.3%</td></tr>
+          <tr><td style="font-size:10px">..._98184</td><td>SMX11</td><td class="num highlight">1</td><td class="num">57</td><td class="num highlight-warn">29.4%</td></tr>
+          <tr><td style="font-size:10px">..._235002088</td><td>SMX2</td><td class="num highlight">1</td><td class="num">51</td><td class="num highlight-warn">25.5%</td></tr>
+          <tr><td style="font-size:10px">..._228491074</td><td>STJ1</td><td class="num highlight">1</td><td class="num">51</td><td class="num highlight-warn">18.6%</td></tr>
+        </table>
+        </div>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:8px;">TOP PLACES — FEBRERO</div>
+        <div class="table-wrapper">
+        <table>
+          <tr><th>Place ID</th><th>SVC</th><th class="num">Dr.</th><th class="num">PNRC</th><th class="num">Ratio</th></tr>
+          <tr><td style="font-size:10px">..._114546923</td><td>SMX5</td><td class="num">2</td><td class="num highlight">148</td><td class="num highlight-warn">19.2%</td></tr>
+          <tr><td style="font-size:10px">..._177183056</td><td>STL1</td><td class="num highlight">1</td><td class="num">89</td><td class="num highlight-warn">26.6%</td></tr>
+          <tr><td style="font-size:10px">..._164835146</td><td>SMX2</td><td class="num highlight">1</td><td class="num">89</td><td class="num highlight-warn">15.8%</td></tr>
+          <tr><td style="font-size:10px">..._2786225</td><td>SMX3</td><td class="num highlight">1</td><td class="num">78</td><td class="num highlight-warn">24.1%</td></tr>
+          <tr><td style="font-size:10px">..._260871715</td><td>STL1</td><td class="num highlight">1</td><td class="num">75</td><td class="num highlight">43.4%</td></tr>
+          <tr><td style="font-size:10px">..._124568171</td><td>SCN1</td><td class="num highlight">1</td><td class="num">59</td><td class="num highlight-warn">17.5%</td></tr>
+          <tr><td style="font-size:10px">..._228491074</td><td>STJ1</td><td class="num highlight">1</td><td class="num">57</td><td class="num highlight-warn">22.8%</td></tr>
+          <tr><td style="font-size:10px">..._183021727</td><td>SMX5</td><td class="num highlight">1</td><td class="num">54</td><td class="num highlight">56.8%</td></tr>
+          <tr><td style="font-size:10px">..._116589920</td><td>SMX2</td><td class="num highlight">1</td><td class="num">49</td><td class="num highlight-warn">36.8%</td></tr>
+          <tr><td style="font-size:10px">..._209748370</td><td>SMX5</td><td class="num highlight">1</td><td class="num">48</td><td class="num highlight-warn">42.5%</td></tr>
+        </table>
+        </div>
+      </div>
+      <div>
+        <div style="color:#888;font-size:11px;margin-bottom:8px;">TOP PLACES — MARZO</div>
+        <div class="table-wrapper">
+        <table>
+          <tr><th>Place ID</th><th>SVC</th><th class="num">Dr.</th><th class="num">PNRC</th><th class="num">Ratio</th></tr>
+          <tr><td style="font-size:10px;color:#ff6b6b"><strong>..._228491074 ⚡</strong></td><td style="color:#ff6b6b">STJ1</td><td class="num highlight">1</td><td class="num highlight">248</td><td class="num highlight">35.0%</td></tr>
+          <tr><td style="font-size:10px">..._261559582</td><td>SMX2</td><td class="num">36</td><td class="num">135</td><td class="num">3.3%</td></tr>
+          <tr><td style="font-size:10px">..._131692127</td><td>SJA1</td><td class="num highlight">1</td><td class="num highlight">118</td><td class="num highlight-warn">30.5%</td></tr>
+          <tr><td style="font-size:10px">..._164835146</td><td>SMX2</td><td class="num highlight">1</td><td class="num">98</td><td class="num highlight-warn">14.6%</td></tr>
+          <tr><td style="font-size:10px">..._260871715</td><td>STL1</td><td class="num highlight">1</td><td class="num">96</td><td class="num highlight-warn">41.7%</td></tr>
+          <tr><td style="font-size:10px">..._257032750</td><td>SSL1</td><td class="num">24</td><td class="num">78</td><td class="num">4.9%</td></tr>
+          <tr><td style="font-size:10px">..._98184</td><td>SMX11</td><td class="num highlight">1</td><td class="num">73</td><td class="num highlight-warn">21.7%</td></tr>
+          <tr><td style="font-size:10px">..._124568171</td><td>SCN1</td><td class="num highlight">1</td><td class="num">66</td><td class="num highlight-warn">15.8%</td></tr>
+          <tr><td style="font-size:10px">..._116589920</td><td>SMX2</td><td class="num highlight">1</td><td class="num">49</td><td class="num highlight-warn">31.2%</td></tr>
+          <tr><td style="font-size:10px">..._177183056</td><td>STL1</td><td class="num highlight">1</td><td class="num">44</td><td class="num highlight-warn">15.7%</td></tr>
+        </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="section" style="margin-top:24px">
+      <div class="section-title">Places con presencia en los 3 meses y PNRC acumulado &gt;100</div>
+      <div class="table-wrapper">
+      <table>
+        <tr><th>Place ID</th><th>SVC</th><th class="num">PNRC Ene</th><th class="num">PNRC Feb</th><th class="num">PNRC Mar</th><th class="num">Total</th><th class="num">Ratio Max</th><th>Driver(s)</th></tr>
+        <tr><td>..._228491074</td><td>STJ1</td><td class="num">51</td><td class="num">57</td><td class="num highlight">248</td><td class="num highlight">356</td><td class="num highlight">35.0%</td><td><span class="badge-red">#2733570</span></td></tr>
+        <tr><td>..._260871715</td><td>STL1</td><td class="num">74</td><td class="num">75</td><td class="num">96</td><td class="num">245</td><td class="num highlight">63.8%</td><td><span class="badge-red">#3671678</span></td></tr>
+        <tr><td>..._164835146</td><td>SMX2</td><td class="num">73</td><td class="num">89</td><td class="num">98</td><td class="num">260</td><td class="num highlight-warn">18.0%</td><td><span class="badge-orange">#1565468</span></td></tr>
+        <tr><td>..._177183056</td><td>STL1</td><td class="num">66</td><td class="num">89</td><td class="num">44</td><td class="num">199</td><td class="num highlight-warn">26.6%</td><td><span class="badge-orange">#3509056</span></td></tr>
+        <tr><td>..._2786225</td><td>SMX3</td><td class="num">61</td><td class="num">78</td><td class="num">—</td><td class="num">139</td><td class="num highlight-warn">24.1%</td><td><span class="badge-orange">#1237767</span></td></tr>
+        <tr><td>..._116589920</td><td>SMX2</td><td class="num">59</td><td class="num">49</td><td class="num">49</td><td class="num">157</td><td class="num highlight-warn">41.3%</td><td><span class="badge-orange">#1370127</span></td></tr>
+        <tr><td>..._124568171</td><td>SCN1</td><td class="num">—</td><td class="num">59</td><td class="num">66</td><td class="num">125</td><td class="num highlight-warn">17.5%</td><td><span class="badge-orange">#2264873</span></td></tr>
+      </table>
+      </div>
+    </div>
+  </div>
+  </div><!-- end concentracion-place -->
+</div>
+<!-- END TAB: CONCENTRACIÓN -->
+
+<!-- TAB: DRIVERS (Offenders + Escalantes) -->
+<div id="tab-drivers" class="content">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;">
+    <div class="insight" style="margin-bottom:0;flex:1;margin-right:16px;">
+      <div class="ins-title">Acción prioritaria</div>
+      1. <strong>#2733570</strong> (STJ1) — bloqueo perm. sept 2025 sin efecto, 356 PNRC, ratio 35%.&nbsp;
+      2. <strong>#3671678</strong> (STL1) — ratio 63.8%, 136 m distancia.&nbsp;
+      3. <strong>27 drivers escalantes</strong> — educación sin efecto, bloquear selectivamente.
+    </div>
+    <button onclick="exportDriversCSV()" style="background:#2a2a45;color:#f5c518;border:1px solid #f5c518;border-radius:4px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;">↓ Exportar CSV</button>
+  </div>
+  <div class="section">
+    <div class="section-title">Top offenders — PNRC acumulado (Ene–Mar 2026)</div>
+    <div class="insight red">
+      <div class="ins-title">🔴 Todos los drivers del top 20 están presentes los 3 meses</div>
+      Ninguno de los principales generadores de EF fue desactivado durante el trimestre. Solo #3290441 y #2250149 están bloqueados, pero mantuvieron operación durante al menos 2 meses.
+    </div>
+    <div class="table-wrapper">
+    <table>
+      <tr>
+        <th>#</th><th>Driver</th><th>SVC</th>
+        <th class="num">Ene PNRC</th><th class="num">Feb PNRC</th><th class="num">Mar PNRC</th>
+        <th class="num">Total</th><th class="num">Ratio max</th><th class="num">Dist (m)</th>
+        <th>Status</th><th>Bloqueo perm.</th><th>Adv/Edu</th>
+      </tr>
+      <tr>
+        <td>1</td><td><span class="badge-red">#2733570</span></td><td>STJ1</td>
+        <td class="num">51</td><td class="num">57</td><td class="num highlight">248</td>
+        <td class="num highlight">356</td><td class="num highlight">35.0%</td><td class="num highlight">475</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-blocked">9 sept 2025</span></td><td>15 mar 2026</td>
+      </tr>
+      <tr>
+        <td>2</td><td><span class="badge-orange">#1565468</span></td><td>SMX2</td>
+        <td class="num">73</td><td class="num">89</td><td class="num">98</td>
+        <td class="num">260</td><td class="num highlight-warn">18.0%</td><td class="num">53</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>6 abr 2026</td>
+      </tr>
+      <tr>
+        <td>3</td><td><span class="badge-red">#3671678</span></td><td>STL1</td>
+        <td class="num">74</td><td class="num">75</td><td class="num">96</td>
+        <td class="num">245</td><td class="num highlight">63.8%</td><td class="num highlight-warn">136</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>24 mar 2026</td>
+      </tr>
+      <tr>
+        <td>4</td><td><span class="badge-orange">#3765915</span></td><td>SMX2</td>
+        <td class="num">47</td><td class="num">62</td><td class="num">98</td>
+        <td class="num">207</td><td class="num highlight-warn">40.5%</td><td class="num highlight-warn">191</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>6 abr 2026</td>
+      </tr>
+      <tr>
+        <td>5</td><td><span class="badge-orange">#3509056</span></td><td>STL1</td>
+        <td class="num">66</td><td class="num">57</td><td class="num">45</td>
+        <td class="num">168</td><td class="num highlight-warn">26.6%</td><td class="num highlight">449</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>7 mar 2026</td>
+      </tr>
+      <tr>
+        <td>6</td><td><span class="badge-orange">#1237767</span></td><td>SMX3</td>
+        <td class="num">61</td><td class="num">78</td><td class="num">29</td>
+        <td class="num">168</td><td class="num highlight-warn">24.1%</td><td class="num highlight">648</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>3 abr 2026</td>
+      </tr>
+      <tr>
+        <td>7</td><td><span class="badge-yellow">#3290441</span></td><td>SMX5</td>
+        <td class="num">38</td><td class="num highlight">148</td><td class="num">—</td>
+        <td class="num">164*</td><td class="num highlight">38.4%</td><td class="num">74</td>
+        <td><span class="badge-blocked">blocked</span></td><td><span class="badge-gray">—</span></td><td>5 feb 2026</td>
+      </tr>
+      <tr>
+        <td>8</td><td><span class="badge-orange">#672181</span></td><td>SMX11</td>
+        <td class="num">57</td><td class="num">57</td><td class="num">46</td>
+        <td class="num">160</td><td class="num highlight-warn">29.4%</td><td class="num">37</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>8 mar 2026</td>
+      </tr>
+      <tr>
+        <td>9</td><td><span class="badge-orange">#1370127</span></td><td>SMX2</td>
+        <td class="num">59</td><td class="num">49</td><td class="num">49</td>
+        <td class="num">157</td><td class="num highlight-warn">41.3%</td><td class="num highlight-warn">173</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>28 mar 2026</td>
+      </tr>
+      <tr>
+        <td>10</td><td><span class="badge-orange">#2264873</span></td><td>SCN1</td>
+        <td class="num">—</td><td class="num">59</td><td class="num">66</td>
+        <td class="num">125</td><td class="num">17.5%</td><td class="num">77</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>28 mar 2026</td>
+      </tr>
+      <tr>
+        <td>11</td><td><span class="badge-orange">#1265398</span></td><td>SJA1</td>
+        <td class="num">—</td><td class="num">19</td><td class="num highlight">118</td>
+        <td class="num">137</td><td class="num highlight-warn">30.5%</td><td class="num highlight-warn">198</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-blocked">8 sept 2025</span></td><td>3 abr 2026</td>
+      </tr>
+      <tr>
+        <td>12</td><td><span class="badge-red">#2250149</span></td><td>SMX5</td>
+        <td class="num">78</td><td class="num">48</td><td class="num">—</td>
+        <td class="num">131*</td><td class="num highlight">50.6%</td><td class="num highlight">300</td>
+        <td><span class="badge-blocked">blocked</span></td><td><span class="badge-gray">—</span></td><td>23 feb 2026</td>
+      </tr>
+      <tr>
+        <td>13</td><td><span class="badge-orange">#2977151</span></td><td>SMX2</td>
+        <td class="num">48</td><td class="num">27</td><td class="num">47</td>
+        <td class="num">122</td><td class="num highlight-warn">25.5%</td><td class="num">47</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-blocked">13 oct 2025</span></td><td>5 abr 2026</td>
+      </tr>
+      <tr>
+        <td>14</td><td><span class="badge-red">#3099974</span></td><td>SMX5</td>
+        <td class="num">26</td><td class="num">54</td><td class="num">37</td>
+        <td class="num">117</td><td class="num highlight">56.8%</td><td class="num">75</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>24 feb 2026</td>
+      </tr>
+      <tr>
+        <td>15</td><td><span class="badge-orange">#878188</span></td><td>SPB1</td>
+        <td class="num">26</td><td class="num">30</td><td class="num">31</td>
+        <td class="num">87</td><td class="num highlight-warn">34.4%</td><td class="num highlight">230</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>19 mar 2026</td>
+      </tr>
+    </table>
+    </div>
+    <div style="font-size:11px;color:#666;margin-top:8px;">* Drivers bloqueados antes de finalizar el trimestre — PNRC corresponde a meses activos.</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Drivers con ratio &gt; 40% y volumen significativo (&gt;20 PNRC)</div>
+    <div class="table-wrapper">
+    <table>
+      <tr><th>Driver</th><th>SVC</th><th class="num">PNRC total</th><th class="num">Ratio max</th><th class="num">Dist prom</th><th>Status</th><th>Bloqueo</th></tr>
+      <tr><td><span class="badge-red">#3671678</span></td><td>STL1</td><td class="num">245</td><td class="num highlight">63.8%</td><td class="num">136 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-red">#3099974</span></td><td>SMX5</td><td class="num">117</td><td class="num highlight">56.8%</td><td class="num">75 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-red">#2250149</span></td><td>SMX5</td><td class="num">131</td><td class="num highlight">50.6%</td><td class="num">300 m</td><td><span class="badge-blocked">blocked</span></td><td>—</td></tr>
+      <tr><td><span class="badge-red">#3857459</span></td><td>SSL1</td><td class="num">20</td><td class="num highlight">100.0%</td><td class="num">176 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-red">#3813612</span></td><td>SSL1</td><td class="num">35</td><td class="num highlight">50.0%</td><td class="num">91 m</td><td><span class="badge-green">active</span></td><td>27 nov 2025</td></tr>
+      <tr><td><span class="badge-orange">#825149</span></td><td>SVR1</td><td class="num">60</td><td class="num highlight">47.1%</td><td class="num">520 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-orange">#1446859</span></td><td>SJA1</td><td class="num">41</td><td class="num highlight">42.3%</td><td class="num">213 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-orange">#1370127</span></td><td>SMX2</td><td class="num">157</td><td class="num highlight">41.3%</td><td class="num">173 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-orange">#3765915</span></td><td>SMX2</td><td class="num">207</td><td class="num highlight">40.5%</td><td class="num">191 m</td><td><span class="badge-green">active</span></td><td>—</td></tr>
+      <tr><td><span class="badge-orange">#3290441</span></td><td>SMX5</td><td class="num">164</td><td class="num highlight">38.4%</td><td class="num">74 m</td><td><span class="badge-blocked">blocked</span></td><td>—</td></tr>
+    </table>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:28px;">
+    <div class="section-title" style="border-top:1px solid #2a2a45;padding-top:16px;">Drivers Escalantes — ratio EF estrictamente creciente (Ene → Feb → Mar)</div>
+    <div class="insight red">
+      <div class="ins-title">🔴 27 drivers empeoran sistemáticamente cada mes</div>
+      Son drivers donde el ratio aumenta en enero, luego en febrero, luego en marzo — sin interrupción. Esto indica que las acciones de educación (Adv/Edu) documentadas no están teniendo efecto. La mayoría sigue activo. El caso más crítico: #2733570 (STJ1) que triplicó su ratio en el trimestre.
+    </div>
+    <div class="table-wrapper">
+    <table>
+      <tr>
+        <th>#</th><th>Driver</th><th>SVC</th>
+        <th class="num">Ratio Ene</th><th class="num">Ratio Feb</th><th class="num">Ratio Mar</th>
+        <th class="num">PNRC total</th><th class="num">Dist m</th>
+        <th>Status</th><th>Bloqueo</th><th>Adv/Edu</th>
+      </tr>
+      <tr>
+        <td>1</td><td><span class="badge-red">#2733570</span></td><td>STJ1</td>
+        <td class="num">18.6%</td><td class="num">22.8%</td><td class="num highlight">35.0%</td>
+        <td class="num highlight">356</td><td class="num highlight">475</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-blocked">9 sept 2025</span></td><td>15 mar 2026</td>
+      </tr>
+      <tr>
+        <td>2</td><td><span class="badge-orange">#3083654</span></td><td>SMX5</td>
+        <td class="num">2.1%</td><td class="num">24.2%</td><td class="num highlight">25.0%</td>
+        <td class="num">44</td><td class="num">253</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>6 feb 2026</td>
+      </tr>
+      <tr>
+        <td>3</td><td><span class="badge-orange">#789179</span></td><td>SMX9</td>
+        <td class="num">7.1%</td><td class="num">8.6%</td><td class="num highlight">20.2%</td>
+        <td class="num">48</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>18 mar 2026</td>
+      </tr>
+      <tr>
+        <td>4</td><td><span class="badge-orange">#1947281</span></td><td>SCG1</td>
+        <td class="num">0.0%</td><td class="num">12.8%</td><td class="num highlight">19.8%</td>
+        <td class="num">29</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>23 mar 2026</td>
+      </tr>
+      <tr>
+        <td>5</td><td>#1286076</td><td>SGD3</td>
+        <td class="num">11.7%</td><td class="num">16.1%</td><td class="num">18.8%</td>
+        <td class="num">38</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>27 mar 2026</td>
+      </tr>
+      <tr>
+        <td>6</td><td>#1240261</td><td>SMX8</td>
+        <td class="num">8.4%</td><td class="num">17.7%</td><td class="num">17.8%</td>
+        <td class="num">55</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>27 mar 2026</td>
+      </tr>
+      <tr>
+        <td>7</td><td>#627700</td><td>SCV1</td>
+        <td class="num">1.9%</td><td class="num">2.4%</td><td class="num">16.1%</td>
+        <td class="num">47</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>8 mar 2026</td>
+      </tr>
+      <tr>
+        <td>8</td><td>#3352532</td><td>SCH1</td>
+        <td class="num">0.0%</td><td class="num">4.2%</td><td class="num">16.1%</td>
+        <td class="num">30</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>15 mar 2026</td>
+      </tr>
+      <tr>
+        <td>9</td><td>#3878051</td><td>SPB1</td>
+        <td class="num">9.4%</td><td class="num">9.6%</td><td class="num">15.1%</td>
+        <td class="num">46</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>3 abr 2026</td>
+      </tr>
+      <tr>
+        <td>10</td><td>#1127955</td><td>SMX2</td>
+        <td class="num">5.6%</td><td class="num">11.6%</td><td class="num">13.5%</td>
+        <td class="num">37</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>28 mar 2026</td>
+      </tr>
+      <tr>
+        <td>11</td><td>#1045594</td><td>SMX8</td>
+        <td class="num">7.9%</td><td class="num">8.3%</td><td class="num">11.0%</td>
+        <td class="num">53</td><td class="num">—</td>
+        <td><span class="badge-green">active</span></td><td><span class="badge-gray">—</span></td><td>1 abr 2026</td>
+      </tr>
+    </table>
+    </div>
+
+    <div class="section" style="margin-top:24px">
+      <div class="section-title">Resumen de acciones por grupo</div>
+      <div class="two-col">
+        <div>
+          <table>
+            <tr><th>Grupo</th><th class="num">Drivers</th><th>Descripción</th></tr>
+            <tr><td><span class="badge-red">Crítico</span></td><td class="num">6</td><td>PNRC &gt;100 acum., ratio &gt;30%, presentes 3 meses, sin bloqueo</td></tr>
+            <tr><td><span class="badge-orange">Alto</span></td><td class="num">28</td><td>PNRC &gt;50, ratio &gt;20%, presentes 2–3 meses</td></tr>
+            <tr><td><span class="badge-yellow">Escalante</span></td><td class="num">27</td><td>Ratio creciente todos los meses — aún sin acción</td></tr>
+            <tr><td><span class="badge-blocked">Con bloqueo prev.</span></td><td class="num">5</td><td>Tienen registro perm. de sept 2025 pero siguen activos</td></tr>
+          </table>
+        </div>
+        <div>
+          <div class="insight">
+            <div class="ins-title">Prioridad de acción sugerida</div>
+            1. <strong>#2733570 (STJ1)</strong> — Bloqueo permanente de sept 2025, ratio 35%, 356 PNRC. Acción inmediata.<br>
+            2. <strong>#3671678 (STL1)</strong> — Ratio 63.8%, 245 PNRC, 136 m de distancia promedio. Sin bloqueo.<br>
+            3. <strong>#3099974 / #2250149 (SMX5)</strong> — Ratios 56.8% y 50.6% respectivamente.<br>
+            4. Revisar los 27 drivers escalantes — señal de que las advertencias no funcionan.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END TAB: DRIVERS -->
+
+<!-- TAB: GRÁFICOS -->
+<div id="tab-graficos" class="content">
+  <div class="section">
+    <div class="section-title">Concentración por SVC — Burbuja (PNRC vs Ratio promedio)</div>
+    <div class="insight">
+      <div class="ins-title">Cómo leer el gráfico</div>
+      Eje X: ratio promedio EF del SVC (acumulado Ene–Mar). Eje Y: PNRC total acumulado. <strong>Tamaño de burbuja: cantidad de drivers únicos.</strong>
+      Un SVC en el cuadrante superior-derecho combina alto volumen con alto ratio — máxima prioridad.
+      <strong>STJ1</strong> es el outlier extremo en ratio (8.2%) con solo 11 drivers — concentración individual extrema.
+    </div>
+    <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;padding:20px;">
+      <canvas id="bubbleChart" height="130"></canvas>
+    </div>
+  </div>
+
+  <div class="section" style="margin-top:28px">
+    <div class="section-title">Pareto de Places — % de places vs % de PNRC acumulado</div>
+    <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;">
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:12px;text-align:center;">
+        <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:4px;">Top 4 places</div>
+        <div style="font-size:20px;font-weight:700;color:#ff6b6b;">0.27%</div>
+        <div style="color:#aaa;font-size:11px;">concentran el <strong style="color:#f5c518">10%</strong> del PNRC</div>
+      </div>
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:12px;text-align:center;">
+        <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:4px;">Top 11 places</div>
+        <div style="font-size:20px;font-weight:700;color:#ff6b6b;">0.73%</div>
+        <div style="color:#aaa;font-size:11px;">concentran el <strong style="color:#f5c518">20%</strong> del PNRC</div>
+      </div>
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:12px;text-align:center;">
+        <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:4px;">Top 76 places</div>
+        <div style="font-size:20px;font-weight:700;color:#f09a3e;">5.08%</div>
+        <div style="color:#aaa;font-size:11px;">concentran el <strong style="color:#f5c518">50%</strong> del PNRC</div>
+      </div>
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:6px;padding:12px;text-align:center;">
+        <div style="color:#888;font-size:10px;text-transform:uppercase;margin-bottom:4px;">Top 302 places</div>
+        <div style="font-size:20px;font-weight:700;color:#f5c518;">20.17%</div>
+        <div style="color:#aaa;font-size:11px;">concentran el <strong style="color:#f5c518">80%</strong> del PNRC</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 360px;gap:16px;align-items:start;">
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;padding:14px;">
+        <canvas id="paretoChart" height="110"></canvas>
+        <div style="font-size:11px;color:#666;margin-top:6px;">302 places = 80% del PNRC · 1,195 restantes = 20% · Total: 1,497 places activos.</div>
+      </div>
+      <div style="background:#1a1a2e;border:1px solid #2a2a45;border-radius:8px;overflow:hidden;">
+        <div style="background:#12122a;padding:7px 12px;font-size:10px;font-weight:700;color:#aaa;text-transform:uppercase;letter-spacing:0.5px;border-bottom:2px solid #f5c518;display:flex;justify-content:space-between;align-items:center;">
+          <span>Places que generan el 80% del PNRC</span>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span style="color:#f5c518">302 de 1,497</span>
+            <button onclick="exportCSV()" style="background:#f5c518;color:#000;border:none;border-radius:4px;padding:3px 9px;font-size:10px;font-weight:700;cursor:pointer;letter-spacing:0.3px;">↓ CSV</button>
+          </div>
+        </div>
+        <div style="padding:6px 10px;background:#12122a;border-bottom:1px solid #2a2a45;">
+          <input type="text" id="placeSearch" placeholder="Buscar place ID o SVC..." oninput="filterPlaces(this.value)"
+            style="background:#1a1a2e;border:1px solid #2a2a45;color:#fff;padding:5px 9px;border-radius:4px;font-size:11px;width:100%;">
+        </div>
+        <div style="max-height:380px;overflow-y:auto;" id="placeTableWrapper">
+        <table style="font-size:11px;width:100%;border-collapse:collapse;">
+          <thead>
+          <tr>
+            <th style="background:#12122a;color:#888;padding:5px 8px;font-size:9px;text-transform:uppercase;border-bottom:1px solid #2a2a45;position:sticky;top:0;">#</th>
+            <th style="background:#12122a;color:#888;padding:5px 8px;font-size:9px;text-transform:uppercase;border-bottom:1px solid #2a2a45;position:sticky;top:0;">Place ID</th>
+            <th style="background:#12122a;color:#888;padding:5px 8px;font-size:9px;text-transform:uppercase;border-bottom:1px solid #2a2a45;position:sticky;top:0;">SVC</th>
+            <th style="background:#12122a;color:#888;padding:5px 8px;font-size:9px;text-transform:uppercase;border-bottom:1px solid #2a2a45;text-align:right;position:sticky;top:0;">PNRC</th>
+            <th style="background:#12122a;color:#888;padding:5px 8px;font-size:9px;text-transform:uppercase;border-bottom:1px solid #2a2a45;text-align:right;position:sticky;top:0;">Acum%</th>
+          </tr>
+          </thead>
+          <tbody id="placeTableBody"></tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+// ─── DATA ───
+const svcData = [
+  {svc:'SMX2',  pnrc:1292, drivers:185, ratio:3.636},
+  {svc:'SMX5',  pnrc:926,  drivers:154, ratio:5.410},
+  {svc:'STL1',  pnrc:733,  drivers:143, ratio:3.615},
+  {svc:'SMX9',  pnrc:574,  drivers:193, ratio:2.183},
+  {svc:'SMX11', pnrc:471,  drivers:158, ratio:2.413},
+  {svc:'SMX8',  pnrc:457,  drivers:142, ratio:2.185},
+  {svc:'SMX4',  pnrc:452,  drivers:189, ratio:1.669},
+  {svc:'SJA1',  pnrc:379,  drivers:69,  ratio:4.197},
+  {svc:'STJ1',  pnrc:367,  drivers:11,  ratio:8.213},
+  {svc:'SMX3',  pnrc:354,  drivers:59,  ratio:3.067},
+  {svc:'SPB1',  pnrc:351,  drivers:171, ratio:2.203},
+  {svc:'SSL1',  pnrc:329,  drivers:133, ratio:2.645},
+  {svc:'SQR1',  pnrc:283,  drivers:102, ratio:2.239},
+  {svc:'SHP1',  pnrc:269,  drivers:105, ratio:3.054},
+  {svc:'SVR1',  pnrc:243,  drivers:119, ratio:2.196},
+  {svc:'STR1',  pnrc:192,  drivers:74,  ratio:3.250},
+  {svc:'SLE1',  pnrc:184,  drivers:153, ratio:1.317},
+  {svc:'SCV1',  pnrc:165,  drivers:89,  ratio:1.156},
+  {svc:'SGD1',  pnrc:164,  drivers:124, ratio:1.382},
+  {svc:'SMT1',  pnrc:160,  drivers:54,  ratio:1.043},
+];
+
+// Color by risk quadrant
+function bubbleColor(d) {
+  if (d.ratio > 6) return 'rgba(255, 107, 107, 0.85)';
+  if (d.ratio > 4) return 'rgba(240, 154, 62, 0.85)';
+  if (d.pnrc > 700) return 'rgba(245, 197, 24, 0.85)';
+  return 'rgba(76, 187, 143, 0.75)';
+}
+function bubbleBorder(d) {
+  if (d.ratio > 6) return '#ff6b6b';
+  if (d.ratio > 4) return '#f09a3e';
+  if (d.pnrc > 700) return '#f5c518';
+  return '#4cbb8f';
+}
+
+// Scale bubble size by drivers (sqrt for area)
+const maxDrivers = Math.max(...svcData.map(d => d.drivers));
+function bubbleR(drivers) { return Math.sqrt(drivers / maxDrivers) * 32 + 8; }
+
+const bubbleDataset = svcData.map(d => ({
+  x: d.ratio,
+  y: d.pnrc,
+  r: bubbleR(d.drivers),
+  _label: d.svc,
+  _drivers: d.drivers,
+  _ratio: d.ratio,
+  _pnrc: d.pnrc,
+  backgroundColor: bubbleColor(d),
+  borderColor: bubbleBorder(d),
+  borderWidth: 2,
+}));
+
+const bubbleCtx = document.getElementById('bubbleChart').getContext('2d');
+new Chart(bubbleCtx, {
+  type: 'bubble',
+  data: { datasets: bubbleDataset.map(b => ({ data: [b], backgroundColor: b.backgroundColor, borderColor: b.borderColor, borderWidth: b.borderWidth, label: b._label })) },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { display: false },
+      tooltip: {
+        callbacks: {
+          label: function(ctx) {
+            const raw = ctx.raw;
+            return [
+              `SVC: ${ctx.dataset.label}`,
+              `Ratio prom: ${raw._ratio.toFixed(2)}%`,
+              `PNRC total: ${raw._pnrc.toLocaleString()}`,
+              `Drivers únicos: ${raw._drivers}`,
+            ];
+          }
+        },
+        backgroundColor: '#1a1a2e',
+        borderColor: '#f5c518',
+        borderWidth: 1,
+        titleColor: '#f5c518',
+        bodyColor: '#e8e8f0',
+        padding: 10,
+      },
+      // Annotations plugin not used — use custom drawing via afterDraw
+    },
+    scales: {
+      x: {
+        title: { display: true, text: 'Ratio promedio EF (%)', color: '#888', font: { size: 11 } },
+        grid: { color: '#1e1e35' },
+        ticks: { color: '#888', callback: v => v + '%' },
+        min: 0,
+      },
+      y: {
+        title: { display: true, text: 'PNRC total acumulado', color: '#888', font: { size: 11 } },
+        grid: { color: '#1e1e35' },
+        ticks: { color: '#888' },
+      }
+    },
+    // Draw SVC labels on each bubble
+    animation: { onComplete: function() {
+      const chart = this;
+      const ctx2 = chart.ctx;
+      ctx2.save();
+      ctx2.font = 'bold 10px Segoe UI';
+      ctx2.textAlign = 'center';
+      ctx2.textBaseline = 'middle';
+      chart.data.datasets.forEach((ds, i) => {
+        const meta = chart.getDatasetMeta(i);
+        meta.data.forEach(point => {
+          ctx2.fillStyle = '#fff';
+          ctx2.fillText(ds.label, point.x, point.y);
+        });
+      });
+      ctx2.restore();
+    }}
+  }
+});
+
+// ─── PARETO DATA (top 302 = 80% del PNRC) ───
+// [rank, placeId, svc, pnrc, cumPct]
+const places302 = [[1,"228491074","STJ1",356,3.2],[2,"261559582","SMX2,SMX9",287,5.79],[3,"164835146","SMX2",260,8.13],[4,"260871715","STL1",245,10.33],[5,"114546923","SMX5",170,11.86],[6,"177183056","STL1",168,13.37],[7,"2786225","SMX3",168,14.88],[8,"131692127","SJA1",162,16.34],[9,"98184","SMX11",160,17.78],[10,"116589920","SMX2",157,19.2],[11,"124568171","SCN1",152,20.56],[12,"209748370","SMX5",134,21.77],[13,"257032750","SSL1",133,22.97],[14,"235002088","SMX2",122,24.06],[15,"183021727","SMX5",117,25.12],[16,"224841070","SMX2,SMX5",93,25.95],[17,"86196844","SPB1",87,26.74],[18,"190481599","SMX5",79,27.45],[19,"186273838","SMX3",78,28.15],[20,"64018075","SSL1",65,28.73],[21,"147064658","SMX5",63,29.3],[22,"117224708","SJA1",62,29.86],[23,"54932953","SMD1",61,30.41],[24,"76273067","SVR1",60,30.95],[25,"40642237","SVR1",57,31.46],[26,"87170713","SGD1",55,31.96],[27,"150373406","SMX2",55,32.45],[28,"167165723","STR1",55,32.95],[29,"155787581","SPB1",55,33.44],[30,"223610143","SMX8",55,33.94],[31,"153487760","SMX7",54,34.42],[32,"181338742","SMT1",54,34.91],[33,"89366392","SJA1",53,35.39],[34,"106711955","SMX8",53,35.86],[35,"120872528","SMX3",52,36.33],[36,"81672901","SQR1",51,36.79],[37,"218684683","SHP1",51,37.25],[38,"224899342","SMX9",49,37.69],[39,"229696927","SMX4",48,38.12],[40,"69983413","SMX9",48,38.55],[41,"103365112","SHP1",48,38.98],[42,"31845904","SCV1",47,39.41],[43,"67719","SMX9",45,39.81],[44,"150429107","SJA1",41,40.18],[45,"167987312","SPZ1",41,40.55],[46,"10686730","SMX4",40,40.91],[47,"112429547","SMX4",40,41.27],[48,"106246589","SMX5",40,41.63],[49,"11421972","STR1",40,41.99],[50,"34149475","SVR1",40,42.35],[51,"67748","SGD3",38,42.69],[52,"56064466","SMX8",38,43.03],[53,"67864","SMX2",37,43.37],[54,"129670517","SMX5",37,43.7],[55,"115576343","SMX9",36,44.02],[56,"216603799","STL1",36,44.35],[57,"6626532","SCH1",36,44.67],[58,"1220726","SQR1",35,44.99],[59,"8875446","SQR1",34,45.29],[60,"230071816","SMX8",33,45.59],[61,"102480748","SMX8",33,45.89],[62,"253123525","SGD2",33,46.18],[63,"49269379","SMX9",33,46.48],[64,"93334510","STL1",32,46.77],[65,"9122494","SCV1",32,47.06],[66,"110163656","SMX5",32,47.35],[67,"223091614","SMX2",32,47.63],[68,"149014034","SQR1",31,47.91],[69,"137295578","SMX2",31,48.19],[70,"190265200","SMX11",31,48.47],[71,"217029886","SCU1",31,48.75],[72,"69349264","SMX9",30,49.02],[73,"68905954","SSL1",30,49.29],[74,"168165065","SLE1",30,49.56],[75,"246924154","SCH1",30,49.83],[76,"136412","SMX8",29,50.09],[77,"4780174","SMX8",29,50.35],[78,"183003727","STP1",29,50.61],[79,"144567","SMX9",29,50.87],[80,"58957057","SOX1",29,51.13],[81,"214991176","SMT3",29,51.39],[82,"192380158","SCG1",29,51.66],[83,"225772294","SMX8",28,51.91],[84,"64190857","SMX5",27,52.15],[85,"112636103","SMX2",26,52.38],[86,"91807225","SMX11",26,52.62],[87,"60433204","SMX3",25,52.84],[88,"109986038","SMX9",25,53.07],[89,"229571740","SAG1",25,53.29],[90,"233744323","SSL1",25,53.52],[91,"119756588","SMX4",25,53.74],[92,"214495450","SMX11",25,53.97],[93,"255742414","SCJ1",25,54.19],[94,"44233234","SMX9",24,54.41],[95,"255305041","SCJ1",24,54.63],[96,"255476662","SCJ1",24,54.84],[97,"18045358","SPB1",24,55.06],[98,"253537411","SMX5",24,55.27],[99,"241070923","SMX2",24,55.49],[100,"26497568","STL1",23,55.7],[101,"256033030","SDC1",23,55.9],[102,"238324597","SMX2",23,56.11],[103,"64742","SMX4",23,56.32],[104,"225820081","SBJ1",23,56.52],[105,"166510154","SCV1",23,56.73],[106,"261537523","SMX9",23,56.94],[107,"122059856","SMX4",22,57.14],[108,"261754762","SMX8",22,57.33],[109,"124050422","SML1",22,57.53],[110,"139968383","SMX4",22,57.73],[111,"10076312","SOX1",22,57.93],[112,"225709438","SMX2",22,58.13],[113,"249344878","STL1",22,58.32],[114,"124089470","STP1",22,58.52],[115,"242612434","SJD1",22,58.72],[116,"178293415","SMX5",21,58.91],[117,"131768780","SAG1",21,59.1],[118,"261599059","SJA1",21,59.29],[119,"139581869","SMX9",20,59.47],[120,"49609549","SMX2",20,59.65],[121,"20221052","STL1",20,59.83],[122,"183370255","SMT1",20,60.01],[123,"77396108","SCY1,SQR1",20,60.19],[124,"181733602","STR1",20,60.37],[125,"116032274","SML1",20,60.55],[126,"109994636","SPB1",20,60.73],[127,"178213972","STG1",20,60.91],[128,"110542829","SMX10",19,61.08],[129,"37680967","SMX11",19,61.25],[130,"206474959","SCX1",19,61.42],[131,"160589513","SZC1",19,61.59],[132,"146729357","SMX9",18,61.75],[133,"52688848","SLE1",18,61.92],[134,"74943853","SMX4",18,62.08],[135,"105338713","SMX10",18,62.24],[136,"6980986","SPB1",18,62.4],[137,"58582174","SMX7",18,62.56],[138,"84451051","SDC1",18,62.72],[139,"16295508","SMX8",17,62.88],[140,"227224087","SCX1",17,63.03],[141,"224742754","SHP1",17,63.18],[142,"83754865","SDC1",17,63.34],[143,"49281814","SMX10",17,63.49],[144,"256314556","SMX11",17,63.64],[145,"154170596","STL1",17,63.8],[146,"227829874","SMX9",17,63.95],[147,"100297318","SMX2",17,64.1],[148,"172083119","SML1",17,64.25],[149,"22524202","SMX5",17,64.41],[150,"103741501","STL1",16,64.55],[151,"28016563","SHP1",16,64.7],[152,"120816515","SMX8",16,64.84],[153,"277516","SMD1",16,64.98],[154,"219384982","SQR1",16,65.13],[155,"73275","SMX9",16,65.27],[156,"120097427","SCV1",16,65.42],[157,"239363095","SMX2",16,65.56],[158,"199683889","SCX1",16,65.7],[159,"142445054","SZM1",16,65.85],[160,"8011722","STL1",15,65.98],[161,"48077","SMX4",15,66.12],[162,"75470222","SMX5",15,66.25],[163,"67261282","SOX1",15,66.39],[164,"110984585","SMX11",15,66.52],[165,"185154136","SMX5",15,66.66],[166,"227594704","SBJ1",15,66.79],[167,"32635528","SMX11",14,66.92],[168,"241644574","SMX5",14,67.04],[169,"8158374","SHP1",14,67.17],[170,"73836415","SMX4",14,67.3],[171,"115107848","SDC1",14,67.42],[172,"48580396","SOX1",14,67.55],[173,"98074075","SCP1",14,67.67],[174,"124474181","STP1",14,67.8],[175,"116979386","SQR1",14,67.93],[176,"213588328","STP1",14,68.05],[177,"97929214","SPB1",14,68.18],[178,"79482613","SHP1",14,68.3],[179,"8951786","SMX7",14,68.43],[180,"73454728","SGD3",14,68.56],[181,"261590245","SMT1",14,68.68],[182,"123689765","SMO1",14,68.81],[183,"38240476","SCU1",14,68.93],[184,"246602629","SMT1",14,69.06],[185,"151359065","SCY1",14,69.19],[186,"142158116","SMX9",14,69.31],[187,"165727496","STA1",14,69.44],[188,"27316918","STL1",14,69.56],[189,"48741","SMX4",13,69.68],[190,"104997037","SMX10",13,69.8],[191,"160941344","STL1",13,69.92],[192,"47652","SMX9",13,70.03],[193,"228147991","SMX2",13,70.15],[194,"139985825","SMT1",13,70.27],[195,"214087954","SJD1",13,70.38],[196,"127197095","SQR1",13,70.5],[197,"227224831","SCM1",13,70.62],[198,"3779411","SAG1",13,70.73],[199,"97677940","SUR1",13,70.85],[200,"115008137","SLE1",13,70.97],[201,"60428","SMX10",13,71.09],[202,"34210447","SCU1",13,71.2],[203,"152169248","SCJ1",13,71.32],[204,"162252098","SMX10",12,71.43],[205,"203759892","SCH1",12,71.54],[206,"157462325","SHP1",12,71.64],[207,"88721293","SMD1",12,71.75],[208,"126768077","SLE1",12,71.86],[209,"31308115","SMX11",12,71.97],[210,"147976985","SMX3",12,72.08],[211,"88910263","SRX1",12,72.18],[212,"4348428","SSL1",12,72.29],[213,"222465790","STL1",12,72.4],[214,"226974463","SMX2",12,72.51],[215,"157463519","SHP1",12,72.62],[216,"227301316","STL1",12,72.72],[217,"37556317","SLE1",12,72.83],[218,"80633155","SSL1",12,72.94],[219,"175896554","SCU1",12,73.05],[220,"108883064","SMX5",11,73.15],[221,"197087398","SBJ1",11,73.25],[222,"21066500","SMX2",11,73.34],[223,"94149124","SMX9",11,73.44],[224,"44751229","SMX4",11,73.54],[225,"161534753","SCX1",11,73.64],[226,"140830472","STA1",11,73.74],[227,"112828532","SGD1",11,73.84],[228,"63291256","STL1",11,73.94],[229,"91394068","SMX11",11,74.04],[230,"217279672","SLE1",11,74.14],[231,"135392852","SSL1",11,74.24],[232,"210102589","SPB1",11,74.33],[233,"255742477","SSL1",11,74.43],[234,"218994772","SMX2",11,74.53],[235,"35475733","SVR1",11,74.63],[236,"166463627","SMT2",11,74.73],[237,"103478644","STR1",11,74.83],[238,"190201300","SMX8",11,74.93],[239,"261702544","SVR1",11,75.03],[240,"33590332","SML1",11,75.13],[241,"89251657","STL1",11,75.22],[242,"75452182","SPB1",10,75.31],[243,"48402","SMX4",10,75.4],[244,"112413833","SQR1",10,75.49],[245,"28163515","SHP1",10,75.58],[246,"197435086","SGD3",10,75.67],[247,"12765802","SMX4",10,75.76],[248,"81707884","SCY1",10,75.85],[249,"108500903","SHP1",10,75.94],[250,"56128927","SCY1",10,76.03],[251,"220407097","SMX7",10,76.12],[252,"260210356","SPY1",10,76.21],[253,"633639","SMX8",10,76.3],[254,"121232063","SZL1",10,76.39],[255,"75240424","SMX11",10,76.48],[256,"44417554","STR1",10,76.57],[257,"257920684","SMX2",10,76.66],[258,"258470707","SGD1",9,76.75],[259,"171483572","SMX4",9,76.83],[260,"32979433","SVR1",9,76.91],[261,"261611725","SMT1",9,76.99],[262,"245775772","SVR1",9,77.07],[263,"126138","SMX8",9,77.15],[264,"236252635","SMX11",9,77.23],[265,"56133283","SCY1",9,77.31],[266,"70847","SMX9",9,77.39],[267,"80057560","SCU1",9,77.47],[268,"113993393","SMX8",9,77.56],[269,"142101728","SMT3",9,77.64],[270,"132224849","SJA1",9,77.72],[271,"8716416","SCY1",9,77.8],[272,"237754879","SMX11",9,77.88],[273,"216330376","SDC1",8,77.95],[274,"134008745","SML1",8,78.02],[275,"133474124","STL1",8,78.1],[276,"152432750","SMX7",8,78.17],[277,"258296947","SMX7",8,78.24],[278,"162456971","SMX4",8,78.31],[279,"81454675","SCV1",8,78.38],[280,"48994567","SVR1",8,78.46],[281,"4219312","STX1",8,78.53],[282,"144445820","SEN1",8,78.6],[283,"26675616","SMX8",8,78.67],[284,"183281848","SMX2",8,78.74],[285,"134477597","SGD3",8,78.82],[286,"132469808","SCJ1",8,78.89],[287,"9539930","SMX4",8,78.96],[288,"34350436","SMX10",8,79.03],[289,"144958385","SCH1",8,79.1],[290,"116589173","SCV1",8,79.18],[291,"169744025","SGD2",8,79.25],[292,"127776962","SCY1",8,79.32],[293,"255981550","SMX11",8,79.39],[294,"258576895","STJ1",8,79.46],[295,"128854475","SMX11",8,79.54],[296,"273447","SMX8",8,79.61],[297,"136081289","SCT1",8,79.68],[298,"177451037","SGD1",8,79.75],[299,"66129","SMT2",8,79.82],[300,"76216985","SHP1",7,79.89],[301,"259870804","SCU1",7,79.95],[302,"75006055","SMX4",7,80.01]];
+
+// ─── PARETO CHART: barras individuales (302 places) ───
+const placeLabels = places302.map(r => r[0]);
+const placeBarValues = places302.map(r => r[3]);
+const placeCumPct = places302.map(r => r[4]);
+const barColors = places302.map(r => {
+  if (r[4] <= 20) return 'rgba(255,107,107,0.85)';
+  if (r[4] <= 50) return 'rgba(240,154,62,0.80)';
+  return 'rgba(245,197,24,0.75)';
+});
+const barBorders = barColors;
+
+// ─── RENDER TABLE ───
+function pnrcColor(pnrc) {
+  if (pnrc >= 200) return '#ff6b6b';
+  if (pnrc >= 100) return '#f09a3e';
+  if (pnrc >= 50)  return '#f5c518';
+  return '#e8e8f0';
+}
+function renderPlaceTable(data) {
+  const tbody = document.getElementById('placeTableBody');
+  tbody.innerHTML = data.map((r, i) => {
+    const [rank, pid, svc, pnrc, cumPct] = r;
+    const bg = i % 2 === 1 ? 'background:#161628;' : '';
+    const col = pnrcColor(pnrc);
+    return `<tr style="${bg}">
+      <td style="padding:4px 8px;border-bottom:1px solid #1e1e35;color:#666;font-size:10px">${rank}</td>
+      <td style="padding:4px 8px;border-bottom:1px solid #1e1e35;font-size:10px;color:#aaa">${pid}</td>
+      <td style="padding:4px 8px;border-bottom:1px solid #1e1e35;font-size:10px;font-weight:600;color:#e8e8f0">${svc}</td>
+      <td style="padding:4px 8px;border-bottom:1px solid #1e1e35;text-align:right;font-weight:700;color:${col}">${pnrc}</td>
+      <td style="padding:4px 8px;border-bottom:1px solid #1e1e35;text-align:right;color:#666;font-size:10px">${cumPct}%</td>
+    </tr>`;
+  }).join('');
+}
+renderPlaceTable(places302);
+
+function filterPlaces(q) {
+  const filtered = q ? places302.filter(r => r[1].includes(q) || r[2].toLowerCase().includes(q.toLowerCase())) : places302;
+  renderPlaceTable(filtered);
+}
+
+const paretoCtx = document.getElementById('paretoChart').getContext('2d');
+new Chart(paretoCtx, {
+  type: 'bar',
+  data: {
+    labels: placeLabels,
+    datasets: [
+      {
+        type: 'bar',
+        label: 'PNRC del place',
+        data: placeBarValues,
+        backgroundColor: barColors,
+        borderColor: 'transparent',
+        borderColor: 'transparent',
+        yAxisID: 'yBar',
+        order: 2,
+      },
+      {
+        type: 'line',
+        label: '% PNRC acumulado',
+        data: placeCumPct,
+        borderColor: '#ffffff',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 0,
+        tension: 0.3,
+        yAxisID: 'yLine',
+        order: 1,
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    interaction: { mode: 'index', intersect: false },
+    plugins: {
+      legend: { labels: { color: '#aaa', font: { size: 10 } } },
+      tooltip: {
+        backgroundColor: '#1a1a2e', borderColor: '#f5c518', borderWidth: 1,
+        titleColor: '#f5c518', bodyColor: '#e8e8f0', padding: 8,
+        callbacks: {
+          title: ctx => {
+            const i = ctx[0].dataIndex;
+            return `Place ${places302[i][1]} · ${places302[i][2]}`;
+          },
+          label: ctx => ctx.datasetIndex === 0 ? ` PNRC: ${ctx.raw}` : ` Acumulado: ${ctx.raw}%`
+        }
+      }
+    },
+    scales: {
+      x: {
+        grid: { color: '#1a1a2e' },
+        ticks: { color: '#888', maxTicksLimit: 12 }
+      },
+      yBar: {
+        position: 'left',
+        title: { display: true, text: 'PNRC', color: '#888', font: { size: 10 } },
+        grid: { color: '#1e1e35' }, ticks: { color: '#888' }
+      },
+      yLine: {
+        position: 'right',
+        title: { display: true, text: '% acumulado', color: '#888', font: { size: 10 } },
+        grid: { display: false },
+        ticks: { color: '#aaa', callback: v => v + '%' },
+        min: 0, max: 100
+      }
+    }
+  }
+});
+
+function exportCSV() {
+  const seg = ['A','A','A','A','B','B','B','B','B','B','B'];
+  // Assign segment to each place
+  function getSegment(rank) {
+    if (rank <= 4) return 'A';
+    if (rank <= 11) return 'B';
+    if (rank <= 76) return 'C';
+    return 'D';
+  }
+  const header = 'Rank,Segmento,Place_ID,SVC,PNRC,Pct_Acumulado\n';
+  const rows = places302.map(r => `${r[0]},${getSegment(r[0])},${r[1]},${r[2]},${r[3]},${r[4]}%`).join('\n');
+  const blob = new Blob(['\uFEFF' + header + rows], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'kangu_mlm_places_80pct_pnrc.csv';
+  a.click();
+}
+</script>
+
+<!-- old summary block removed (merged into tab-summary above) -->
+
+<footer>
+  <div><strong>Fuente:</strong> Metricas Shipping_ME OFF_Tabla · Enero–Marzo 2026 · Kangu MLM</div>
+  <div><strong>Procesado:</strong> 4,698 registros de driver-mes · 1,344 chronic offenders identificados</div>
+  <div><strong>Generado:</strong> 07 Abr 2026</div>
+</footer>
+
+<script>
+function showTab(name) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.content').forEach(c => c.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + name).classList.add('active');
+  if (name === 'graficos') {
+    setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+  }
+}
+
+function exportParetoCSV(limit, filename) {
+  const header = 'Rank,Place_ID,SVC,PNRC,Pct_Acumulado,Grupo\n';
+  const data = places302.slice(0, limit).map(r => {
+    const rank = r[0];
+    const grupo = rank <= 4 ? 'A (top 10% PNRC)' : rank <= 11 ? 'B (top 20% PNRC)' : rank <= 76 ? 'C (top 50% PNRC)' : 'D (top 80% PNRC)';
+    return `${rank},${r[1]},${r[2]},${r[3]},${r[4]}%,${grupo}`;
+  }).join('\n');
+  const blob = new Blob(['\uFEFF' + header + data], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = filename; a.click();
+}
+
+function exportSVCcsv() {
+  const rows = [
+    ['SVC','PNRC_ENE','PNRC_FEB','PNRC_MAR','PNRC_TOTAL','RATIO_PROM_PCT','DRIVERS_UNICOS'],
+    ['SMX2',413,331,548,1292,3.636,185],['SMX5',289,408,229,926,5.410,154],
+    ['STL1',268,240,225,733,3.615,143],['SMX9',202,165,207,574,2.183,193],
+    ['SMX11',135,114,222,471,2.413,158],['SMX8',139,138,180,457,2.185,142],
+    ['SMX4',188,137,168,452,1.669,189],['SJA1',77,null,200,379,4.197,69],
+    ['STJ1',92,82,254,367,8.213,11],['SMX3',116,138,117,354,3.067,59],
+    ['SPB1',null,null,null,351,2.203,171],['SSL1',null,null,null,329,2.645,133],
+    ['SQR1',null,null,null,283,2.239,102],['SHP1',null,null,null,269,3.054,105],
+    ['SVR1',null,null,null,243,2.196,119],['STR1',null,null,null,192,3.250,74],
+    ['SLE1',null,null,null,184,1.317,153],['SCV1',null,null,null,165,1.156,89],
+    ['SGD1',null,null,null,164,1.382,124],['SMT1',null,null,null,160,1.043,54],
+  ];
+  const csv = rows.map(r => r.map(v => v === null ? '' : v).join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'kangu_mlm_svc_resumen.csv'; a.click();
+}
+
+function exportDriversCSV() {
+  const rows = [
+    ['Rank','Driver_ID','SVC','PNRC_ENE','PNRC_FEB','PNRC_MAR','PNRC_TOTAL','RATIO_MAX_PCT','DIST_PROM_M','STATUS','BLOQUEO_PERM'],
+    [1,2733570,'STJ1',51,57,248,356,35.0,475,'active','9 sept 2025'],
+    [2,1565468,'SMX2',73,89,98,260,18.0,53,'active','—'],
+    [3,3671678,'STL1',74,75,96,245,63.8,136,'active','—'],
+    [4,3765915,'SMX2',47,62,98,207,40.5,191,'active','—'],
+    [5,3509056,'STL1',66,57,45,168,26.6,449,'active','—'],
+    [6,1237767,'SMX3',61,78,29,168,24.1,648,'active','—'],
+    [7,3290441,'SMX5',38,148,0,164,38.4,74,'blocked','—'],
+    [8,672181,'SMX11',57,57,46,160,29.4,37,'active','—'],
+    [9,1370127,'SMX2',59,49,49,157,41.3,173,'active','—'],
+    [10,2264873,'SCN1',0,59,66,125,17.5,77,'active','—'],
+    [11,1265398,'SJA1',0,19,118,137,30.5,198,'active','8 sept 2025'],
+    [12,2250149,'SMX5',78,48,0,131,50.6,300,'blocked','—'],
+    [13,2977151,'SMX2',48,27,47,122,25.5,47,'active','13 oct 2025'],
+    [14,3099974,'SMX5',26,54,37,117,56.8,75,'active','—'],
+    [15,878188,'SPB1',26,30,31,87,34.4,230,'active','—'],
+  ];
+  const csv = rows.map(r => r.join(',')).join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+  a.download = 'kangu_mlm_top_drivers.csv'; a.click();
+}
+</script>
+</body>
+</html>
